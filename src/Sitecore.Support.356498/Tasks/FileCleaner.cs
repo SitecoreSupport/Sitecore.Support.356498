@@ -275,35 +275,45 @@
         {
             SortedList candidateFiles = GetCandidateFiles(folder);
             Hashtable fileGroups = new Hashtable();
-            foreach (FileInfo value in candidateFiles.Values)
+
+            #region Modified code
+
+            // RollingCleanup(DirectoryInfo folder) method cast "candidateFiles" using "as" and then check if the object is null.
+            for (int i = 0; i < candidateFiles.Count; i++)
             {
-                TimeSpan fileAge = GetFileAge(value);
-                if (fileAge.TotalHours < 1.0)
+                var value = candidateFiles.GetByIndex(i) as FileInfo;
+                if (value != null)
                 {
-                    AddFileToGroup(value, "hour", fileGroups);
-                }
-                else if (fileAge.TotalDays < 1.0)
-                {
-                    AddFileToGroup(value, "day", fileGroups);
-                }
-                else if (fileAge.TotalDays < 7.0)
-                {
-                    AddFileToGroup(value, "week", fileGroups);
-                }
-                else if (fileAge.TotalDays < 30.0)
-                {
-                    AddFileToGroup(value, "month", fileGroups);
-                }
-                else if (fileAge.TotalDays < 365.0)
-                {
-                    AddFileToGroup(value, "year", fileGroups);
-                }
-                else
-                {
-                    ReportDeletion(value, "File in rolling cleanup is more than one year old");
-                    value.Delete();
+                    TimeSpan fileAge = GetFileAge(value);
+                    if (fileAge.TotalHours < 1.0)
+                    {
+                        AddFileToGroup(value, "hour", fileGroups);
+                    }
+                    else if (fileAge.TotalDays < 1.0)
+                    {
+                        AddFileToGroup(value, "day", fileGroups);
+                    }
+                    else if (fileAge.TotalDays < 7.0)
+                    {
+                        AddFileToGroup(value, "week", fileGroups);
+                    }
+                    else if (fileAge.TotalDays < 30.0)
+                    {
+                        AddFileToGroup(value, "month", fileGroups);
+                    }
+                    else if (fileAge.TotalDays < 365.0)
+                    {
+                        AddFileToGroup(value, "year", fileGroups);
+                    }
+                    else
+                    {
+                        ReportDeletion(value, "File in rolling cleanup is more than one year old");
+                        value.Delete();
+                    }
                 }
             }
+
+            #endregion
 
             CleanupGroups(fileGroups);
         }
